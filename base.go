@@ -3,7 +3,7 @@ package main
 /*
  *  Types for basic financial transactions and things
  *
- *  Copyright (C) 2017 Arthur M
+ *  Copyright (C) 2017 Arthur Mendes
  */
 
 import (
@@ -20,7 +20,7 @@ import (
 type BaseAccount interface {
 	/* Account ID */
 	GetID() uint
-	
+
 	/* Account Name */
 	GetName() string
 	SetName(s string)
@@ -35,25 +35,22 @@ type BaseAccount interface {
 	AddRegister(f *FinancialRegister)
 
 	/* Remove a register from an account */
-	RemoveRegister(f* FinancialRegister)
+	RemoveRegister(f *FinancialRegister)
 
 	/* Get register from an account */
 	GetRegisterbyID(id uint) *FinancialRegister
 	GetRegistersbyDatePeriod(start, end time.Time) []*FinancialRegister
-};
+}
 
 /*
- *   A financial register. 
+ *   A financial register.
  *   Contains information about a single transaction
  */
 type FinancialRegister struct {
-	id uint
-	name string
-	time time.Time
+	id    uint
+	name  string
+	time  time.Time
 	value float32
-	from BaseAccount
-	to BaseAccount
-};
-
-
-
+	from  BaseAccount
+	to    BaseAccount
+}
