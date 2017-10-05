@@ -32,7 +32,8 @@ func printHelp() {
 }
 
 func main() {
-
+	SetDatabasePath(os.Getenv("HOME") + "/.config/clinancial.db")
+	
 	commands = append(commands,
 		CCommand{name: "help", desc: "Print this help text",
 			function: _printHelp},
@@ -72,27 +73,50 @@ func testArgs(args []string) {
 }
 
 func manageAccounts(args []string) {
-	if len(args) < 3 {
-		fmt.Println("Expected format: " + args[0] + " [create|view|delete] account_name")
+	if len(args) < 2 {
+		fmt.Println("Expected format: " + args[0] + " [create|view|delete]")
 		return
 	}
 
 	operation := args[1]
-	acc_name := args[2]
 
 	if operation == "create" {
+		if len(args) < 3 {
+			fmt.Println("Expected format: " + args[0] + " create <account_name>")
+			return
+		}
+		
+		acc_name := args[2]
 		a := &Account{id: uint(time.Now().Unix()),
 			name: acc_name}
 		a.Create()
 		fmt.Printf("Account %s created (id %d)\n",
 			a.GetName(), a.GetID())
 
-		fmt.Println(" -- note that it will not persist... --- ")
 		return
 	}
 
 	if operation == "view" {
-		fmt.Println("view operation is not supported")
+		acc, err := GetAllAccounts()
+		if err != nil {
+			fmt.Print("fatal: ")
+			panic(err)
+		}
+
+		if len(acc) == 0 {
+			fmt.Println("\t\tNo accounts registered")
+			return
+		}
+		
+		fmt.Printf("          id        |   creation date \n")
+		fmt.Printf("====================|=========================\n")
+		for _, val := range acc {
+			fmt.Printf(" %-18s | %s\n", val.GetName(),
+				val.GetCreationDate())
+				
+		}
+
+		fmt.Println("")
 		return
 	}
 

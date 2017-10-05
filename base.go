@@ -25,6 +25,9 @@ type BaseAccount interface {
 	GetName() string
 	SetName(s string)
 
+	/* Get creation date */
+	GetCreationDate() time.Time
+
 	/* Create an account in a database */
 	Create() error
 

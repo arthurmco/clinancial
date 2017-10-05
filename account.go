@@ -43,6 +43,10 @@ func (a *Account) SetName(s string) {
 	a.name = s
 }
 
+func (a *Account) GetCreationDate() time.Time {
+	return a.creationDate
+}
+
 func (a *Account) GetValue(month, year uint) float32 {
 	if month >= 12 {
 		month = 1
@@ -134,7 +138,7 @@ func (a *Account) GetRegistersbyDatePeriod(start, end time.Time) []*FinancialReg
 	return ret
 }
 
-var dbpath string = "~/.config/clinancial.db"
+var dbpath string = "clinancial.db"
 
 func SetDatabasePath(s string) {
 	dbpath = s
@@ -230,7 +234,7 @@ func (a *Account) Update() error {
 		return err
 	}
 
-	res, err := db.Exec("UPDATE accounts SET name = ? WHERE id = ?",
+	_, err = db.Exec("UPDATE accounts SET name = ? WHERE id = ?",
 		a.name, a.id)
 
 	if err != nil {
