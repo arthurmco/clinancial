@@ -5,7 +5,10 @@ package main
  *  Copyright (C) 2017 Arthur Mendes
  */
 import (
+	"database/sql"
 	"time"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 /*
@@ -131,7 +134,226 @@ func (a *Account) GetRegistersbyDatePeriod(start, end time.Time) []*FinancialReg
 	return ret
 }
 
-func (a *Account) Create() {
+var dbpath string = "~/.config/clinancial.db"
+
+func SetDatabasePath(s string) {
+	dbpath = s
+}
+
+func CreateDatabase() error {
+	db, eerr := sql.Open("sqlite3", dbpath)
+	if eerr != nil {
+		return eerr
+	}
+
+	stmt, err := db.Prepare("CREATE TABLE IF NOT EXISTS accounts (" +
+		"id INTEGER PRIMARY KEY, name TEXT, ctime INTEGER)")
+	if err != nil {
+		return err
+	}
+	stmt.Exec()
+
+	stmt, err = db.Prepare("CREATE TABLE IF NOT EXISTS registers (" +
+		"id INTEGER PRIMARY KEY, sid INTEGER, name string, " +
+		"time INTEGER, val REAL, fromaccount INTEGER, " +
+		"toaccount INTEGER) ")
+	if err != nil {
+		return err
+	}
+	stmt.Exec()
+	db.Close()
+	return nil
+}
+
+func DropDatabase() error {
+	db, eerr := sql.Open("sqlite3", dbpath)
+	if eerr != nil {
+		return eerr
+	}
+
+	stmt, err := db.Prepare("DROP TABLE IF EXISTS accounts")
+	if err != nil {
+		return err
+	}
+	stmt.Exec()
+
+	stmt, err = db.Prepare("DROP TABLE IF EXISTS registers")
+	if err != nil {
+		return err
+	}
+	stmt.Exec()
+	db.Close()
+	return nil
+}
+
+/* Add account in the database */
+func (a *Account) Create() error {
 	a.transactions = make(map[uint][]*FinancialRegister)
 	a.creationDate = time.Now()
+
+	err := CreateDatabase()
+	if err != nil {
+		return err
+	}
+
+	db, err := sql.Open("sqlite3", dbpath)
+	if err != nil {
+		return err
+	}
+
+	res, err := db.Exec("INSERT INTO accounts (name, ctime) VALUES (?, ?)",
+		a.name, a.creationDate.Unix())
+
+	if err != nil {
+		panic(err)
+	}
+
+	lastid, _ := res.LastInsertId()
+	a.id = uint(lastid)
+	db.Close()
+
+	return nil
+}
+
+/* Update account info in the database */
+func (a *Account) Update() error {
+	a.transactions = make(map[uint][]*FinancialRegister)
+	a.creationDate = time.Now()
+
+	err := CreateDatabase()
+	if err != nil {
+		return err
+	}
+
+	db, err := sql.Open("sqlite3", dbpath)
+	if err != nil {
+		return err
+	}
+
+	res, err := db.Exec("UPDATE accounts SET name = ? WHERE id = ?",
+		a.name, a.id)
+
+	if err != nil {
+		panic(err)
+	}
+
+	db.Close()
+
+	return nil
+}
+
+
+/* Get account in the db by id */
+func (a *Account) GetbyID(id uint) error {
+
+	err := CreateDatabase()
+	if err != nil {
+		return err
+	}
+
+	db, err := sql.Open("sqlite3", dbpath)
+	if err != nil {
+		return err
+	}
+
+	res, err := db.Query("SELECT id, name, ctime FROM accounts WHERE id = ?",
+		id)
+	if err != nil {
+		panic(err)
+	}
+
+	var sid int
+	var sname string
+	var sctime int
+
+	if !res.Next() {
+		return &AccountError{"No results", 1000}
+	}
+
+	err = res.Scan(&sid, &sname, &sctime)
+	if err != nil {
+		return err
+	}
+
+	a.id = uint(sid)
+	a.name = sname
+	a.creationDate = time.Unix(int64(sctime), 0)
+
+	res.Close()
+	db.Close()
+	return nil
+}
+
+/* Get account in the db by name */
+func (a *Account) GetbyName(name string) error {
+	err := CreateDatabase()
+	if err != nil {
+		return err
+	}
+
+	db, err := sql.Open("sqlite3", dbpath)
+	if err != nil {
+		return err
+	}
+
+	res, err := db.Query("SELECT id, name, ctime FROM accounts "+
+		"WHERE name = ?", name)
+	if err != nil {
+		panic(err)
+	}
+
+	var sid int
+	var sname string
+	var sctime int
+
+	if !res.Next() {
+		return &AccountError{"No results", 1000}
+	}
+	err = res.Scan(&sid, &sname, &sctime)
+	if err != nil {
+		return err
+	}
+
+	a.id = uint(sid)
+	a.name = sname
+	a.creationDate = time.Unix(int64(sctime), 0)
+
+	res.Close()
+	db.Close()
+	return nil
+}
+
+func GetAllAccounts() ([]*Account, error) {
+	err := CreateDatabase()
+	if err != nil {
+		return nil, err
+	}
+
+	db, err := sql.Open("sqlite3", dbpath)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := db.Query("SELECT id, name, ctime FROM accounts")
+	if err != nil {
+		panic(err)
+	}
+
+	accounts := make([]*Account, 0)
+	for res.Next() {
+		var sid int
+		var sname string
+		var sctime int
+
+		err = res.Scan(&sid, &sname, &sctime)
+		if err != nil {
+			return nil, err
+		}
+
+		accounts = append(accounts, &Account{id: uint(sid),
+			name:         sname,
+			creationDate: time.Unix(int64(sctime), 0)})
+	}
+
+	return accounts, nil
 }

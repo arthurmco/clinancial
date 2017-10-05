@@ -26,7 +26,14 @@ type BaseAccount interface {
 	SetName(s string)
 
 	/* Create an account in a database */
-	Create()
+	Create() error
+
+	/* Update account info in the database */
+	Update() error
+
+	/* Get accounts in the database */
+	GetbyID(id uint) error
+	GetbyName(name string) error
 
 	/* Get actual value for that month/year */
 	GetValue(month, year uint) float32
@@ -40,6 +47,17 @@ type BaseAccount interface {
 	/* Get register from an account */
 	GetRegisterbyID(id uint) *FinancialRegister
 	GetRegistersbyDatePeriod(start, end time.Time) []*FinancialRegister
+}
+
+
+
+type AccountError struct {
+	err string
+	code int
+}
+
+func (a *AccountError) Error() string {
+	return a.err
 }
 
 /*
