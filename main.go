@@ -38,7 +38,7 @@ func main() {
 	if os.Getenv("CLINANCIAL_DB") != "" {
 		SetDatabasePath(os.Getenv("CLINANCIAL_DB"))
 	}
-	
+
 	commands = append(commands,
 		CCommand{name: "help", desc: "Print this help text",
 			function: _printHelp},
@@ -90,7 +90,7 @@ func manageAccounts(args []string) {
 			fmt.Println("Expected format: " + args[0] + " create <account_name>")
 			return
 		}
-		
+
 		acc_name := args[2]
 		a := &Account{id: uint(time.Now().Unix()),
 			name: acc_name}
@@ -112,13 +112,13 @@ func manageAccounts(args []string) {
 			fmt.Println("\t\tNo accounts registered")
 			return
 		}
-		
+
 		fmt.Printf("          id        |   creation date \n")
 		fmt.Printf("====================|=========================\n")
 		for _, val := range acc {
 			fmt.Printf(" %-18s | %s\n", val.GetName(),
 				val.GetCreationDate())
-				
+
 		}
 
 		fmt.Println("")

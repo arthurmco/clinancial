@@ -138,58 +138,6 @@ func (a *Account) GetRegistersbyDatePeriod(start, end time.Time) []*FinancialReg
 	return ret
 }
 
-var dbpath string = "clinancial.db"
-
-func SetDatabasePath(s string) {
-	dbpath = s
-}
-
-func CreateDatabase() error {
-	db, eerr := sql.Open("sqlite3", dbpath)
-	if eerr != nil {
-		return eerr
-	}
-
-	stmt, err := db.Prepare("CREATE TABLE IF NOT EXISTS accounts (" +
-		"id INTEGER PRIMARY KEY, name TEXT, ctime INTEGER)")
-	if err != nil {
-		return err
-	}
-	stmt.Exec()
-
-	stmt, err = db.Prepare("CREATE TABLE IF NOT EXISTS registers (" +
-		"id INTEGER PRIMARY KEY, sid INTEGER, name string, " +
-		"time INTEGER, val REAL, fromaccount INTEGER, " +
-		"toaccount INTEGER) ")
-	if err != nil {
-		return err
-	}
-	stmt.Exec()
-	db.Close()
-	return nil
-}
-
-func DropDatabase() error {
-	db, eerr := sql.Open("sqlite3", dbpath)
-	if eerr != nil {
-		return eerr
-	}
-
-	stmt, err := db.Prepare("DROP TABLE IF EXISTS accounts")
-	if err != nil {
-		return err
-	}
-	stmt.Exec()
-
-	stmt, err = db.Prepare("DROP TABLE IF EXISTS registers")
-	if err != nil {
-		return err
-	}
-	stmt.Exec()
-	db.Close()
-	return nil
-}
-
 /* Add account in the database */
 func (a *Account) Create() error {
 	a.transactions = make(map[uint][]*FinancialRegister)
@@ -200,7 +148,7 @@ func (a *Account) Create() error {
 		return err
 	}
 
-	db, err := sql.Open("sqlite3", dbpath)
+	db, err := sql.Open("sqlite3", GetDatabasePath())
 	if err != nil {
 		return err
 	}
@@ -229,7 +177,7 @@ func (a *Account) Update() error {
 		return err
 	}
 
-	db, err := sql.Open("sqlite3", dbpath)
+	db, err := sql.Open("sqlite3", GetDatabasePath())
 	if err != nil {
 		return err
 	}
@@ -246,7 +194,6 @@ func (a *Account) Update() error {
 	return nil
 }
 
-
 /* Get account in the db by id */
 func (a *Account) GetbyID(id uint) error {
 
@@ -255,7 +202,7 @@ func (a *Account) GetbyID(id uint) error {
 		return err
 	}
 
-	db, err := sql.Open("sqlite3", dbpath)
+	db, err := sql.Open("sqlite3", GetDatabasePath())
 	if err != nil {
 		return err
 	}
@@ -295,7 +242,7 @@ func (a *Account) GetbyName(name string) error {
 		return err
 	}
 
-	db, err := sql.Open("sqlite3", dbpath)
+	db, err := sql.Open("sqlite3", GetDatabasePath())
 	if err != nil {
 		return err
 	}
@@ -333,7 +280,7 @@ func GetAllAccounts() ([]*Account, error) {
 		return nil, err
 	}
 
-	db, err := sql.Open("sqlite3", dbpath)
+	db, err := sql.Open("sqlite3", GetDatabasePath())
 	if err != nil {
 		return nil, err
 	}

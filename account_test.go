@@ -7,7 +7,6 @@ package main
 import (
 	"strconv"
 	"testing"
-	"time"
 )
 
 func createTestAccount(id uint) *Account {
@@ -96,109 +95,6 @@ func TestAccountAllAccounts(t *testing.T) {
 		t.Error("second item: expected 2, found " +
 			strconv.Itoa(int(acc[1].GetID())))
 
-	}
-
-	DropDatabase()
-}
-
-func TestCreateAndGetRegister(t *testing.T) {
-	a := createTestAccount(1)
-	b := createTestAccount(2)
-
-	a.AddRegister(&FinancialRegister{id: 1, name: "Test", time: time.Now(),
-		value: 50, from: b, to: a})
-	a.AddRegister(&FinancialRegister{id: 2, name: "Test", time: time.Now(),
-		value: 30, from: a, to: b})
-
-	r := a.GetRegisterbyID(1)
-
-	if r == nil {
-		t.Error("wrong value, got nil, should be 1")
-		DropDatabase()
-		return
-	}
-
-	if r.id != 1 {
-		t.Error("wrong value, got " + strconv.Itoa(int(r.id)) + ", should be 1")
-	}
-
-	DropDatabase()
-}
-
-func TestCreateAndRemoveRegister(t *testing.T) {
-	a := createTestAccount(1)
-	b := createTestAccount(2)
-
-	a.AddRegister(&FinancialRegister{id: 1, name: "Test", time: time.Now(),
-		value: 50, from: b, to: a})
-	a.AddRegister(&FinancialRegister{id: 2, name: "Test", time: time.Now(),
-		value: 30, from: a, to: b})
-
-	r := a.GetRegisterbyID(1)
-	if r == nil {
-		t.Error("wrong value, got nil, should be 1")
-		DropDatabase()
-		return
-	}
-
-	a.RemoveRegister(r)
-	r = a.GetRegisterbyID(1)
-	if r != nil {
-		t.Error("wrong value, should be nil ")
-	}
-
-	DropDatabase()
-}
-
-func TestGetPrice(t *testing.T) {
-	a := createTestAccount(1)
-	b := createTestAccount(2)
-
-	a.AddRegister(&FinancialRegister{id: 1, name: "Test", time: time.Now(),
-		value: 50, from: b, to: a})
-	a.AddRegister(&FinancialRegister{id: 2, name: "Test", time: time.Now(),
-		value: 30, from: a, to: b})
-	a.AddRegister(&FinancialRegister{id: 3, name: "Test", time: time.Now(),
-		value: 130, from: b, to: a})
-
-	tm := time.Now().Month()
-	ty := time.Now().Year()
-
-	price := a.GetValue(uint(tm), uint(ty))
-	if price != float32(150) {
-		t.Error("wrong value, got " + strconv.FormatFloat(
-			float64(price), 'f', -1, 64) + ", should be 150.0")
-	}
-
-	DropDatabase()
-}
-
-func TestGetRegisterByDate(t *testing.T) {
-	a := createTestAccount(1)
-	b := createTestAccount(2)
-
-	a.AddRegister(&FinancialRegister{id: 18, name: "Test",
-		time:  time.Date(2000, 10, 1, 0, 0, 0, 0, time.Now().Location()),
-		value: 50, from: b, to: a})
-	a.AddRegister(&FinancialRegister{id: 2, name: "Test", time: time.Now(),
-		value: 30, from: a, to: b})
-	a.AddRegister(&FinancialRegister{id: 3, name: "Test", time: time.Now(),
-		value: 130, from: b, to: a})
-
-	regs := a.GetRegistersbyDatePeriod(
-		time.Date(2000, 9, 20, 0, 0, 0, 0, time.Now().Location()),
-		time.Date(2000, 10, 20, 0, 0, 0, 0, time.Now().Location()))
-
-	if len(regs) != 1 {
-		t.Error("wrong len, got " + strconv.Itoa(
-			len(regs)) + ", should be 1")
-		DropDatabase()
-		return
-	}
-
-	if regs[0].id != 18 {
-		t.Error("wrong len, got " + strconv.Itoa(
-			int(regs[0].id)) + ", should be 18")
 	}
 
 	DropDatabase()

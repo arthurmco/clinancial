@@ -52,10 +52,8 @@ type BaseAccount interface {
 	GetRegistersbyDatePeriod(start, end time.Time) []*FinancialRegister
 }
 
-
-
 type AccountError struct {
-	err string
+	err  string
 	code int
 }
 
