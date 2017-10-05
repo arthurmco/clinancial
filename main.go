@@ -9,6 +9,7 @@ package main
 
 import (
 	"fmt"
+	"time"
 	"os"
 )
 
@@ -37,6 +38,8 @@ func main() {
 	commands = append(commands,
 		CCommand{name: "help", desc: "Print this help text",
 			function: _printHelp},
+		CCommand{name: "account", desc: "Manages accounts",
+			function: manageAccounts},
 		CCommand{name: "argprint", desc: "Test argument printing",
 			function: testArgs});
 		
@@ -47,9 +50,10 @@ func main() {
 		return;
 	}
 
+	fmt.Println(" Please note that the interface might be not fully functional");
 	for _, c := range(commands) {
 		if c.name == os.Args[1] {
-			c.function(os.Args[2:]);
+			c.function(os.Args[1:]);
 			return;
 		}
 	}
@@ -68,4 +72,34 @@ func testArgs(args []string) {
 	}
 
 	fmt.Println("");
+}
+
+func manageAccounts(args []string) {
+	if (len(args) < 3) {
+		fmt.Println("Expected format: "+args[0]+" [create|view|delete] account_name");
+		return;
+	}
+
+	operation := args[1];
+	acc_name := args[2];
+
+	if (operation == "create") {
+		a := &Account{id: uint(time.Now().Unix()),
+			name: acc_name};
+		a.Create();
+		fmt.Printf("Account %s created (id %d)\n",
+			a.GetName(), a.GetID());
+
+		fmt.Println(" -- note that it will not persist... --- ");
+		return;			
+	}
+
+	if (operation == "view") {
+		fmt.Println("view operation is not supported");
+		return;
+	}
+
+	if (operation == "delete") {
+		fmt.Println("delete operation is not supported");
+	}
 }
