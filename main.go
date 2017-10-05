@@ -33,6 +33,11 @@ func printHelp() {
 
 func main() {
 	SetDatabasePath(os.Getenv("HOME") + "/.config/clinancial.db")
+
+	/* Use the enviroment variable to set the db path, if present */
+	if os.Getenv("CLINANCIAL_DB") != "" {
+		SetDatabasePath(os.Getenv("CLINANCIAL_DB"))
+	}
 	
 	commands = append(commands,
 		CCommand{name: "help", desc: "Print this help text",
