@@ -22,7 +22,9 @@ type CCommand struct {
 var commands = make([]CCommand, 0)
 
 func printHelp() {
-	fmt.Println(" clinancial - a command-line financial manager")
+	fmt.Println(" clinancial - a command-line financial manager")	
+	fmt.Println("")
+	fmt.Printf(" Usage: %s [command] [commandargs...]\n", os.Args[0])
 	fmt.Println("")
 	fmt.Println(" Commands: ")
 
@@ -113,11 +115,18 @@ func manageAccounts(args []string) {
 			return
 		}
 
-		fmt.Printf("          id        |   creation date \n")
-		fmt.Printf("====================|=========================\n")
+		fmt.Printf("          id        |  price  | creation date \n")
+		fmt.Printf("====================|=========|===============\n")
+		
+		tm := time.Now().Month()
+		ty := time.Now().Year()
 		for _, val := range acc {
-			fmt.Printf(" %-18s | %s\n", val.GetName(),
-				val.GetCreationDate())
+
+			price, _ := val.GetValue(uint(tm), uint(ty))
+			datefmt := val.GetCreationDate().Format("2006-01-02")
+			
+			fmt.Printf(" %-18s | %7.2f | %s\n", val.GetName(),
+				price, datefmt)
 
 		}
 

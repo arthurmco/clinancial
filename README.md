@@ -12,6 +12,19 @@ Please note that, currently, few things are implemented. Check the issues for mo
 
 Type `clinancial` or `clinancial help` to see a list of available options.
 
+```
+
+clinancial - a command-line financial manager
+
+ Usage: ./clinancial [command] [commandargs...]
+
+ Commands: 
+	help                 Print this help text
+	account              Manages accounts
+	argprint             Test argument printing
+
+
+```
 
 ## Details
 
