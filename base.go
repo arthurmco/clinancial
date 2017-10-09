@@ -39,17 +39,17 @@ type BaseAccount interface {
 	GetbyName(name string) error
 
 	/* Get actual value for that month/year */
-	GetValue(month, year uint) float32
+	GetValue(month, year uint) (float32, error)
 
 	/* Add a register to an account */
-	AddRegister(f *FinancialRegister)
+	AddRegister(f *FinancialRegister) error
 
 	/* Remove a register from an account */
-	RemoveRegister(f *FinancialRegister)
+	RemoveRegister(f *FinancialRegister) error
 
 	/* Get register from an account */
-	GetRegisterbyID(id uint) *FinancialRegister
-	GetRegistersbyDatePeriod(start, end time.Time) []*FinancialRegister
+	GetRegisterbyID(id uint) (*FinancialRegister, error)
+	GetRegistersbyDatePeriod(start, end time.Time) ([]*FinancialRegister, error)
 }
 
 type AccountError struct {
