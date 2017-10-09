@@ -48,8 +48,6 @@ func (a *Account) GetCreationDate() time.Time {
 }
 
 func (a *Account) GetValue(month, year uint) (float32, error) {
-	tstart := time.Date(int(year), time.Month(month), 1, 0, 0, 0, 0,
-		time.Now().Location())
 	if month >= 12 {
 		month = 1
 		year++
@@ -71,8 +69,7 @@ func (a *Account) GetValue(month, year uint) (float32, error) {
 	}
 
 	res, err := db.Query("SELECT val, fromaccount, toaccount "+
-		"FROM registers WHERE time >= ? AND time < ?",
-		tstart.Unix(), tend.Unix())
+		"FROM registers WHERE time < ?", tend.Unix())
 
 	if err != nil {
 		return 0.0, err
