@@ -55,6 +55,47 @@ func TestAccountPersistency(t *testing.T) {
 	DropDatabase()
 }
 
+func TestAccountUpdate(t *testing.T) {
+	a := createTestAccount(1)
+
+	aa := &Account{}
+	err := aa.GetbyID(1)
+
+	if err != nil {
+		DropDatabase()
+		t.Fatal(err)
+	}
+
+	if aa.name != a.name {
+		t.Error("ID: wrong value, got " + aa.GetName() + "|" +
+			strconv.Itoa(int(aa.GetID())) +
+			", should be " + a.GetName() + "|" +
+			strconv.Itoa(int(a.GetID())))
+		DropDatabase()
+		return
+	}
+
+	a.SetName("Account0001")
+	a.Update()
+	
+	aa = &Account{}
+	err = aa.GetbyName("Account0001")
+
+	if err != nil {
+		DropDatabase()
+		t.Fatal(err)
+	}
+
+	if aa.GetName() != a.GetName() {
+		t.Error("name: wrong value, got " + aa.GetName() + "|" +
+			strconv.Itoa(int(aa.GetID())) +
+			", should be " + a.GetName() + "|" +
+			strconv.Itoa(int(a.GetID())))
+	}
+
+	DropDatabase()
+}
+
 func TestAccountAllAccounts(t *testing.T) {
 	SetDatabasePath("/tmp/clinancial.test")
 	acc, err := GetAllAccounts()
